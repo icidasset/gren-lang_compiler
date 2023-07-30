@@ -14,6 +14,7 @@ import Init qualified
 import Make qualified
 import Package qualified
 import Repl qualified
+import Run qualified
 import Terminal
 import Terminal.Helpers qualified as H
 import Text.PrettyPrint.ANSI.Leijen qualified as P
@@ -29,6 +30,7 @@ main =
     [ repl,
       init,
       make,
+      run,
       docs,
       format,
       package
@@ -153,6 +155,30 @@ make =
           |-- flag "output" Make.output "Specify the name of the resulting JS file. For example --output=assets/gren.js to generate the JS at assets/gren.js. You can also use --output=/dev/stdout to output the JS to the terminal, or --output=/dev/null to generate no output at all!"
           |-- flag "report" Make.reportType "You can say --report=json to get error messages as JSON. This is only really useful if you are an editor plugin. Humans should avoid it!"
    in Terminal.Command "make" Uncommon details example (zeroOrMore H.grenFile) makeFlags Make.run
+
+-- RUN
+
+run :: Terminal.Command
+run =
+  let details =
+        "The `run` command runs executable applications:"
+
+      example =
+        stack
+          [ reflow
+              "For example:",
+            P.indent 4 $ P.green "gren run src/Main.gren",
+            reflow
+              "This tries to compile an Gren file named src/Main.gren, creating an executable\
+              \ if possible and then runs that executable."
+          ]
+
+      runFlags =
+        flags Run.Flags
+          |-- onOff "optimize" "Turn on optimizations to make code smaller and faster. For example, the compiler renames record fields to be as short as possible and unboxes values to reduce allocation."
+          |-- onOff "sourcemaps" "Add sourcemaps to the resulting JS file. This let's you debug Gren code in a JS debugger, at the cost of longer compile times and a bigger JS file."
+          |-- flag "report" Make.reportType "You can say --report=json to get error messages as JSON. This is only really useful if you are an editor plugin. Humans should avoid it!"
+   in Terminal.Command "run" Uncommon details example (zeroOrMore H.grenFile) runFlags Run.run
 
 -- DOCS
 

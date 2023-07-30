@@ -4,10 +4,20 @@ module Make
   ( Flags (..),
     Output (..),
     ReportType (..),
-    run,
-    reportType,
+    buildExposed,
+    buildPaths,
+    generate,
+    getExposed,
+    getMains,
+    getMode,
+    getPlatform,
+    getProjectType,
+    getStyle,
     output,
+    prepareOutput,
+    reportType,
     rereadSources,
+    run,
   )
 where
 

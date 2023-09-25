@@ -37,20 +37,24 @@ run paths flags@(Flags _ _ report) =
     style <- Make.getStyle Nothing report
     maybeRoot <- Dirs.findRoot
 
-    (Just hin, _, _, nodeProcess) <- Process.createProcess
-      (Process.shell "echo")
-      { Process.std_in = Process.CreatePipe
-      , Process.std_out = Process.UseHandle IO.stdout
-      }
+    (_readPipe, writePipe) <- Process.createPipe
+
+    IO.hSetEncoding writePipe IO.utf8
+    IO.hSetBuffering writePipe (IO.BlockBuffering Nothing)
+    IO.hSetBinaryMode writePipe True
 
     Reporting.attemptWithStyle style Exit.makeToReport $
       case maybeRoot of
-        Just root -> runHelp root paths style flags hin
+        Just root -> runHelp root paths style flags writePipe
         Nothing -> return $ Left Exit.MakeNoOutline
 
-    IO.hClose hin
+    -- IO.hFlush writePipe
 
-    _ <- Process.waitForProcess nodeProcess
+    -- (_, _, _, _) <- Process.createProcess
+    --   (Process.shell "node -")
+    --   { Process.std_in = Process.UseHandle readPipe
+    --   , Process.std_out = Process.Inherit
+    --   }
 
     return ()
 
